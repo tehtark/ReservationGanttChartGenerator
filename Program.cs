@@ -111,6 +111,13 @@ internal class Program
         var reader = new StreamReader(filePath);
         var csv = new CsvReader(reader, config);
         var records = csv.GetRecords<Reservation>().ToList();
+        reader.Dispose();
+
+        for (int i = records.Count - 1; i >= 0; i--) {
+            if (records[i].Name.ToLower() == "euro projector") {
+                records.RemoveAt(i);
+            }
+        }
 
         records.RemoveAt(0);
 
@@ -144,56 +151,81 @@ internal class Program
         int chartHeight = 1080;
         int rowHeight = 30;
         int margin = 40;
-        int dayLength = 24;
+        int reservationTime = 2;
+
+        var date = DateTime.Parse(records[0].Time).Date;
+        var firstTable = DateTime.Parse(records.First().Time).Hour - 1;
+        var lastTable = DateTime.Parse(records.Last().Time).Hour + 2;
+
+        int dayLength = lastTable - firstTable;
+        // Calculate time unit width dynamically to fit the chart
+        int timeUnitWidth = (chartWidth - 2 * margin) / dayLength;
+
+        StringFormat stringFormat = new StringFormat();
+        stringFormat.Alignment = StringAlignment.Center;
+        stringFormat.LineAlignment = StringAlignment.Near;
+
+        Pen axisPen = new Pen(Color.Black, 2);
+        Pen reservationPen = new Pen(Color.Gray, 1);
+        Brush reservationBrush = Brushes.LightBlue;
+        System.Drawing.Font font = SystemFonts.DefaultFont;
 
         // Create Bitmap
         Bitmap bitmap = new(chartWidth, chartHeight);
         Graphics graphics = Graphics.FromImage(bitmap);
         graphics.Clear(Color.White);
 
-        // Draw Timeline Axis (X Axis)
-        Pen xPen = new Pen(Color.Black, 2);
-        graphics.DrawLine(xPen, margin, margin + 10, margin, chartHeight - margin);
-        for (int i = 0; i <= dayLength; i++) {
-            int x = margin + (i * chartWidth / dayLength);
-            graphics.DrawLine(xPen, x, margin, x, margin + 5); // Draw line under number
-            StringFormat stringFormat = new StringFormat();
-            stringFormat.Alignment = StringAlignment.Center;
-            stringFormat.LineAlignment = StringAlignment.Near;
-            graphics.DrawString(i.ToString(), SystemFonts.DefaultFont, Brushes.Black, x, margin - 15, stringFormat); // Draw number
+        graphics.DrawLine(axisPen, margin, margin + 10, chartWidth - margin, margin + 10);
+        // Draw timeslot markings (every 15 minutes)
+        for (double time = firstTable; time <= lastTable; time += 0.25) // 0.25 represents 15 minutes
+        {
+            int x = margin + (int)((time - firstTable) * timeUnitWidth);
+            int lineHeight = (time % 1 == 0) ? 10 : 5;
+            graphics.DrawLine(axisPen, x, margin, x, margin + lineHeight);
+            graphics.DrawLine(axisPen, x, margin, x, margin + 5); // Draw line under number
+
+            // Draw time label at the top (only for hours and half-hours)
+            if (time % 1 == 0 || time % 1 == 0.5) {
+                int hour = (int)time;
+                int minute = (int)((time - hour) * 60); // Calculate minutes from fractional part
+                string timeLabel = $"{hour % 12}:{minute:00} {(hour < 12 ? "AM" : "PM")}"; // Corrected format
+                graphics.DrawString(timeLabel, SystemFonts.DefaultFont, Brushes.Black, x, margin - 25, stringFormat);
+            }
         }
 
         // Draw Table line Axies (Y Axis)
-        Pen yPen = new Pen(Color.Gray, 1);
-        Brush reservationBrush = Brushes.LightBlue;
-        System.Drawing.Font font = SystemFonts.DefaultFont;
-        graphics.DrawLine(xPen, margin, margin + 10, chartWidth - margin, margin + 10);
+        graphics.DrawLine(axisPen, margin, margin + 10, chartWidth - margin, margin + 10);
+
+        // Reservation drawing and timeslot markings
         for (int i = 0; i < records.Count; i++) {
             Reservation r = records[i];
             int y = margin + (i * rowHeight);
-
-            // Draw TableName on the LEFT before the line
-            StringFormat stringFormat = new StringFormat();
-            stringFormat.Alignment = StringAlignment.Near;
-            stringFormat.LineAlignment = StringAlignment.Center;
-            graphics.DrawString(r.Table, font, Brushes.Black, margin - 25, y + (rowHeight / 2) + 10, stringFormat);
-            graphics.DrawLine(yPen, margin, y + margin, chartWidth - margin, y + margin); // Add some padding after the table name
+            graphics.DrawString(r.Table, font, Brushes.Black, margin - 25, y + (rowHeight / 2) + 10, new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
+            graphics.DrawLine(reservationPen, margin, y + margin, chartWidth - margin, y + margin);
 
             // Parse Time
-            DateTime startTime = DateTime.Parse(records[i].Time);
-            DateTime endTime = startTime.AddHours(2); // Estimate 2-hour reservation (adjust if needed)
+            DateTime startTime = DateTime.Parse(r.Time);
+            DateTime endTime = startTime.AddHours(reservationTime);
 
-            int barStartX = margin + (int)((startTime.Hour + startTime.Minute / 60.0) * (chartWidth / dayLength));
-            int barEndX = margin + (int)((endTime.Hour + endTime.Minute / 60.0) * (chartWidth / dayLength));
-            int barWidth = barEndX - barStartX;
+            // Calculate start and end X positions
+            int barStartX = margin + (int)((startTime.Hour - firstTable) * timeUnitWidth + (startTime.Minute / 60.0) * timeUnitWidth);
+            int barEndX = margin + (int)((endTime.Hour - firstTable) * timeUnitWidth + (endTime.Minute / 60.0) * timeUnitWidth);
+            int barWidth = Math.Max(barEndX - barStartX, 1); // Ensure minimum width of 1 pixel
+
+            // Check if reservation extends beyond the chart
+            if (barEndX > chartWidth - margin) {
+                barWidth = chartWidth - margin - barStartX; // Limit width to fit the chart
+            }
+
+            // Draw reservation block with adjusted positions
             graphics.FillRectangle(reservationBrush, barStartX, y + 20, barWidth, rowHeight - 20);
         }
 
         // Save Bitmap
-        bitmap.Save($"output/table_reservations_gantt.png");
+        bitmap.Save($"output/Table Reservations Gantt Chart - {date.ToString("yyyy-MM-dd")}.png");
 
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Gantt chart created: output/table_reservations_gantt.png");
+        Console.WriteLine($"Image created at: output/Table Reservations Gantt Chart - {date.ToString("yyyy-MM-dd")}.png");
         Console.ResetColor();
     }
 }
