@@ -150,6 +150,7 @@ internal class Program
         int chartWidth = 1920;
         int chartHeight = 1080;
         int rowHeight = 30;
+        int barThickness = 28;
         int margin = 40;
         int reservationTime = 2;
 
@@ -218,7 +219,7 @@ internal class Program
             }
 
             // Draw reservation block with adjusted positions
-            graphics.FillRectangle(reservationBrush, barStartX, y + 20, barWidth, rowHeight - 20);
+            graphics.FillRectangle(reservationBrush, barStartX, y + ((rowHeight - barThickness) / 2 + 10), barWidth, barThickness);
         }
 
         // Save Bitmap
