@@ -22,7 +22,7 @@ internal class ImageService : IImageService
         StringFormat stringFormat = new StringFormat();
         stringFormat.Alignment = StringAlignment.Center;
         stringFormat.LineAlignment = StringAlignment.Near;
-        Pen axisPen = new Pen(Color.Black, 2);
+        Pen pen = new Pen(Color.Black, 2);
         Pen reservationPen = new Pen(Color.Gray, 1);
         Brush reservationBrush = Brushes.LightBlue;
         Font font = SystemFonts.DefaultFont;
@@ -40,18 +40,51 @@ internal class ImageService : IImageService
         Graphics graphics = Graphics.FromImage(bitmap);
         graphics.Clear(Color.White);
 
+        DrawAxis(graphics, margin, chartWidth, chartHeight, pen);
+
+        DrawTimeslotMarkings(graphics, margin, stringFormat, firstTable, lastTable, timeUnitWidth, pen);
+
+        DrawReservationBlocks(records, graphics, margin, rowHeight, barThickness, chartWidth, totalTables, firstTable, lastTable, timeUnitWidth, reservationTime, reservationBrush, font, reservationPen, stringFormat);
+
+        SaveImage(bitmap, $"Table Reservations Gantt Chart - {date.ToString("dd-MM-yyyy")}.png");
+    }
+
+    private void SaveImage(Bitmap bitmap, string fileName)
+    {
+        try {
+            bitmap.Save("output/" + fileName);
+        }
+        catch (Exception error) {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(error);
+            Console.ResetColor();
+            return;
+        }
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"Image exported to: output/{fileName}");
+        Thread.Sleep(1000);
+        Console.ResetColor();
+        Process.Start("explorer.exe", "/open," + AppDomain.CurrentDomain.BaseDirectory + @"output\" + fileName);
+    }
+
+    private void DrawAxis(Graphics graphics, int margin, int chartWidth, int chartHeight, Pen pen)
+    {
         // Draw Horizontal Axis
-        graphics.DrawLine(axisPen, margin, margin + 10, chartWidth - margin, margin + 10);
+        graphics.DrawLine(pen, margin, margin + 10, chartWidth - margin, margin + 10);
 
         // Draw Vertical Axis
-        graphics.DrawLine(axisPen, margin, margin, margin, chartHeight - margin);
+        graphics.DrawLine(pen, margin, margin, margin, chartHeight - margin);
+    }
 
+    private void DrawTimeslotMarkings(Graphics graphics, int margin, StringFormat stringFormat, int firstTable, int lastTable, int timeUnitWidth, Pen pen)
+    {
         // Draw timeslot markings (every 15 minutes)
         for (double time = firstTable; time <= lastTable; time += 0.25) // 0.25 represents 15 minutes
         {
             int x = margin + (int)((time - firstTable) * timeUnitWidth);
             int lineHeight = time % 1 == 0 ? 10 : 5;
-            graphics.DrawLine(axisPen, x, margin, x, margin + lineHeight);
+            graphics.DrawLine(pen, x, margin, x, margin + lineHeight);
             if (time % 1 == 0 || time % 1 == 0.5) {
                 int hour = (int)time;
                 int minute = (int)((time - hour) * 60); // Calculate minutes from fractional part
@@ -59,7 +92,11 @@ internal class ImageService : IImageService
                 graphics.DrawString(timeLabel, SystemFonts.DefaultFont, Brushes.Black, x, margin - 25, stringFormat);
             }
         }
+    }
 
+    private void DrawReservationBlocks(List<Reservation> records, Graphics graphics, int margin, int rowHeight, int barThickness, int chartWidth,
+        int totalTables, int firstTable, int lastTable, int timeUnitWidth, double reservationTime, Brush reservationBrush, Font font, Pen reservationPen, StringFormat stringFormat)
+    {
         // Draw Reservation Blocks by Table
         for (int t = 0; t < totalTables; t++) {
             int y = margin + t * rowHeight;
@@ -92,33 +129,7 @@ internal class ImageService : IImageService
                     int textY = y + (rowHeight / 2 + 2);
                     graphics.DrawString(r.Name + $" - Covers: {r.Covers}", font, Brushes.Black, textX, textY, stringFormat);
                 }
-                // Save Bitmap
             }
         }
-        SaveImage(bitmap, $"Table Reservations Gantt Chart - {date.ToString("yyyy-MM-dd")}.png");
-    }
-
-    public void SaveImage(Bitmap bitmap, string fileName)
-    {
-        try {
-            bitmap.Save("output/" + fileName);
-        }
-        catch (Exception error) {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(error);
-            Console.ResetColor();
-            return;
-        }
-
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"Image exported to: output/{fileName}");
-        Thread.Sleep(1000);
-        Console.ResetColor();
-        Process.Start("explorer.exe", "/open," + AppDomain.CurrentDomain.BaseDirectory + @"output\" + fileName);
-    }
-
-    public void DrawAxis(Graphics graphics, int margin, int chartWidth, int chartHeight)
-    {
-        throw new NotImplementedException();
     }
 }
