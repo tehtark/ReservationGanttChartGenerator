@@ -1,10 +1,13 @@
 ﻿using ReservationTimelineGenerator.Models;
 using ReservationTimelineGenerator.Services.Interfaces;
+using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.Versioning;
 
 namespace ReservationTimelineGenerator.Services;
 
-internal class GenerationService : IGenerationService
+[SupportedOSPlatform("windows")]
+internal class ImageService : IImageService
 {
     public void GenerateImage(List<Reservation> records)
     {
@@ -85,10 +88,29 @@ internal class GenerationService : IGenerationService
         }
 
         // Save Bitmap
-        bitmap.Save($"output/Table Reservations Gantt Chart - {date.ToString("yyyy-MM-dd")}.png");
+        SaveImage(bitmap, $"Table Reservations Gantt Chart - {date.ToString("yyyy-MM-dd")}.png");
+    }
+
+    public void SaveImage(Bitmap bitmap, string fileName)
+    {
+        try {
+            bitmap.Save("output/" + fileName);
+        }
+        catch (Exception error) {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(error);
+            return;
+        }
 
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"Image created at: output/Table Reservations Gantt Chart - {date.ToString("yyyy-MM-dd")}.png");
+        Console.WriteLine($"Image exported to: output/{fileName}");
+        Thread.Sleep(1000);
         Console.ResetColor();
+        Process.Start("explorer.exe", "/open," + AppDomain.CurrentDomain.BaseDirectory + "output");
+    }
+
+    public void DrawAxis(Graphics graphics, int margin, int chartWidth, int chartHeight)
+    {
+        throw new NotImplementedException();
     }
 }

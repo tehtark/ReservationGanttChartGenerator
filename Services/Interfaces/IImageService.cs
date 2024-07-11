@@ -2,7 +2,7 @@
 
 namespace ReservationTimelineGenerator.Services.Interfaces;
 
-internal interface IGenerationService
+internal interface IImageService
 {
     void GenerateImage(List<Reservation> records);
 }

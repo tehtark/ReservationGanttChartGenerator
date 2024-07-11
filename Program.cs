@@ -1,10 +1,12 @@
 ﻿using ReservationTimelineGenerator.Services;
 using ReservationTimelineGenerator.Services.Interfaces;
+using System.Runtime.Versioning;
 
+[SupportedOSPlatform("windows")]
 internal class Program
 {
     public static IFileService FileService = new FileService();
-    public static IGenerationService GenerationService = new GenerationService();
+    public static IImageService GenerationService = new ImageService();
 
     private static void Main(string[] args)
     {

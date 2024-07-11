@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using ReservationTimelineGenerator.Models;
 using ReservationTimelineGenerator.Services.Interfaces;
+using Spectre.Console;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -52,36 +53,22 @@ internal class FileService : IFileService
 
         // If there are more than 1 files, display a list of files
         if (filesLength >= 2) {
-            for (int i = 0; i < filesLength; i++) {
-                Console.WriteLine($"{i + 1} {files[i]}");
-            }
-            Console.Write("Please select a file: ");
-            path = Console.ReadLine();
+            List<string> fileNames = [];
 
-            if (path == null) {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Cannot be null");
-                Console.ResetColor();
-                return null;
+            foreach (var file in files) {
+                fileNames.Add(Path.GetFileName(file));
             }
+            path = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Please select a [green]file[/]?")
+                    .PageSize(10)
+                    .MoreChoicesText("[grey](Move up and down to reveal more files)[/]")
+                    .AddChoices(fileNames));
 
-            if (!int.TryParse(path, out int index)) {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Invalid input, must be a number");
-                Console.ResetColor();
-                return null;
-            }
-
-            if (index < 1 || index > filesLength) {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Invalid input, must be a valid file index");
-                Console.ResetColor();
-                return null;
-            }
-
-            path = files[index - 1];
+            path = AppContext.BaseDirectory + "input/" + path;
         }
 
+        // If there is only 1 file, set the path to the file
         if (filesLength == 1) {
             path = files[0];
         }
@@ -114,24 +101,6 @@ internal class FileService : IFileService
         }
 
         records.RemoveAt(0);
-
-        foreach (var record in records) {
-            DateTime dateTime = DateTime.Parse(record.Time);
-            TimeOnly time = TimeOnly.FromDateTime(dateTime);
-
-            //Console.WriteLine($"Time: {record.Time}");
-            Console.WriteLine($"Time: {time}");
-            Console.WriteLine($"Name: {record.Name}");
-            Console.WriteLine($"Covers: {record.Covers}");
-            Console.WriteLine($"Table: {record.Table}");
-            Console.WriteLine($"Phone Number: {record.PhoneNumber}");
-
-            if (!string.IsNullOrEmpty(record.Allergies)) {
-                Console.WriteLine($"Allergies: {record.Allergies}");
-            }
-
-            Console.WriteLine();
-        }
 
         return records;
     }
