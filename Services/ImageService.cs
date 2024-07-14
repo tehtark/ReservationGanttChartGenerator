@@ -27,14 +27,14 @@ internal class ImageService : IImageService
     //private static readonly SolidBrush ReservationBrush = new SolidBrush(Color.LightGray);
 
     private static readonly SolidBrush ReservationBrush = new SolidBrush(Color.FromArgb(155, 194, 230));
-    private static Font DefaultFont = new Font("Verdana", 12, FontStyle.Bold);
-
-    private static Font OtherFont = new Font("Verdana", 10, FontStyle.Bold);
+    private static Font ReservationBlockFont = new Font("Verdana", 12, FontStyle.Bold);
+    private static Font InformationFont = new Font("Verdana", 14, FontStyle.Bold);
+    private static Font ChartFont = new Font("Verdana", 10, FontStyle.Bold);
 
     public void GenerateImage(List<Reservation> records)
     {
         var date = DateTime.Parse(records[0].Time).Date;
-        var firstTable = DateTime.Parse(records[0].Time).Hour - 1 / 2;
+        var firstTable = DateTime.Parse(records[0].Time).Hour - 1;
         var lastTable = DateTime.Parse(records[^1].Time).Hour + 3;
 
         int dayLength = lastTable - firstTable;
@@ -49,6 +49,8 @@ internal class ImageService : IImageService
         DrawTimeslotMarkings(graphics, firstTable, lastTable, timeUnitWidth);
 
         DrawReservationBlocks(records, graphics, firstTable, timeUnitWidth);
+
+        DrawInformation(records, graphics);
 
         SaveImage(bitmap, date);
     }
@@ -75,7 +77,7 @@ internal class ImageService : IImageService
     private void DrawAxis(Graphics graphics)
     {
         graphics.DrawLine(AxisPen, Margin, Margin + 10, ChartWidth - Margin, Margin + 10);
-        graphics.DrawLine(AxisPen, Margin, Margin, Margin, ChartHeight - Margin);
+        graphics.DrawLine(AxisPen, Margin, Margin, Margin, Margin + (TotalTables -1) * RowHeight + Margin);
     }
 
     private void DrawTimeslotMarkings(Graphics graphics, int firstTable, int lastTable, int timeUnitWidth)
@@ -84,33 +86,33 @@ internal class ImageService : IImageService
             int x = Margin + (int)((time - firstTable) * timeUnitWidth);
             int lineHeight = time % 1 == 0 ? 10 : 5;
             graphics.DrawLine(AxisPen, x, Margin, x, Margin + lineHeight);
+
             if (time % 1 == 0 || time % 1 == 0.5) {
                 int hour = (int)time;
                 int minute = (int)((time - hour) * 60);
-                string timeLabel = $"{hour % 12}:{minute:00} {(hour < 12 ? "AM" : "PM")}";
-                graphics.DrawString(timeLabel, OtherFont, Brushes.Black, x, Margin - 25, StringFormat);
+
+                // Corrected time label calculation
+                string timeLabel = $"{((hour == 0 || hour == 12) ? 12 : hour % 12)}:{minute:00} {(hour < 12 ? "AM" : "PM")}";
+
+                graphics.DrawString(timeLabel, ChartFont, Brushes.Black, x, Margin - 25, StringFormat);
             }
         }
     }
 
-    private string AbbreviateName(string name)
-    {
-        const int maxLength = 15;
-        if (name.Length > maxLength) {
-            return name.Substring(0, maxLength - 3) + "...";
-        }
-        return name;
-    }
 
     private void DrawReservationBlocks(List<Reservation> records, Graphics graphics, int firstTable, int timeUnitWidth)
     {
+        int y = 0;
         for (int t = 0; t < TotalTables; t++) {
-            int y = Margin + t * RowHeight;
-            graphics.DrawString((t + 1).ToString(), OtherFont, Brushes.Black, Margin - 20, y + RowHeight / 2 + 3, StringFormat);
+            y = Margin + t * RowHeight;
+            graphics.DrawString((t + 1).ToString(), ChartFont, Brushes.Black, Margin - 20, y + RowHeight / 2 + 3, StringFormat);
             graphics.DrawLine(ReservationPen, Margin, y + Margin, ChartWidth - Margin, y + Margin);
             foreach (Reservation r in records) {
+                if (r.Table == null) throw new NullReferenceException();
                 string[] tables = r.Table.Split('+');
                 if (tables.Contains((t + 1).ToString())) {
+                    if(r.Time == null) throw new NullReferenceException();
+
                     DateTime startTime = DateTime.Parse(r.Time);
                     DateTime endTime = startTime.AddHours(ReservationTime);
 
@@ -126,10 +128,41 @@ internal class ImageService : IImageService
 
                     int textX = (barStartX + barEndX) / 2;
                     int textY = y + (RowHeight / 2 + 2);
+                    if(r.Name == null) throw new NullReferenceException();
+                    
                     string abbreviatedName = AbbreviateName(r.Name);
-                    graphics.DrawString($"{abbreviatedName} T:{r.Table} C:{r.Covers}", DefaultFont, Brushes.White, textX, textY - 1, StringFormat);
+                    graphics.DrawString($"{abbreviatedName} T:{r.Table} C:{r.Covers}", ReservationBlockFont, Brushes.Black, textX, textY - 1, StringFormat);
                 }
             }
         }
     }
+    
+private void DrawInformation(List<Reservation> records, Graphics graphics)
+    {
+        int lastTableY = Margin + (TotalTables - 1) * RowHeight; // Calculate the y-coordinate of the last table
+
+        for (var i = 0; i < records.Count; i++) {
+            var r = records[i];
+            if (r.Name == null) throw new NullReferenceException();
+
+            string information = $"Name: {r.Name}, Phone Number: {r.PhoneNumber}, Email: {r.Email}, Allergies: {r.Allergies}";
+
+            // Calculate the position to draw the information
+            int x = Margin;
+            int y = lastTableY + Margin + (i + 1) * RowHeight; // Place the strings underneath the last table
+
+            // Draw the information string
+            graphics.DrawString(information, InformationFont, Brushes.Black, x, y);
+        }
+    }
+    private string AbbreviateName(string name)
+    {
+        const int maxLength = 15;
+        if (name.Length > maxLength) {
+            return name.Substring(0, maxLength - 3) + "...";
+        }
+        return name;
+    }
+
+    
 }
