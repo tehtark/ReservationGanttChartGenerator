@@ -30,13 +30,19 @@
                 }
             }
         </MudPaper>
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-            <MudImage Src="@dataUri"></MudImage>
-        </MudPaper>
     </MudItem>
+    @if (!string.IsNullOrEmpty(dataUri)) {
+        <MudItem xs="12">
+
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                <MudImage Src="@dataUri"></MudImage>
+            </MudPaper>
+
+        </MudItem>
+    }
 </MudGrid>
 
-@if (_files != null) {
+@* @if (_files != null) {
     <MudText Typo="@Typo.h6">@_files.Count() File@(_files.Count() == 1 ? "" : "s"):</MudText>
     <MudList T="string">
         @foreach (var file in _files) {
@@ -45,16 +51,13 @@
             </MudListItem>
         }
     </MudList>
-}
+} *@
 
 @code {
     bool loaded = false;
     IList<IBrowserFile> _files = new List<IBrowserFile>();
     Stream? _stream;
-    List<Reservation>? _reservations;
     string dataUri = string.Empty;
-
-    string? imagePath = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -67,13 +70,12 @@
 
     private async Task UploadFile(IBrowserFile file)
     {
-        // var buffer = new Byte[file.Size];
         _files.Add(file);
         _stream = file.OpenReadStream();
     }
     private async Task Generate()
     {
-        _reservations = await _mediator.Send(new ReadFileQuery(_stream));
+        var _reservations = await _mediator.Send(new ReadFileQuery(_stream));
         using var stream = new MemoryStream();
         var image = await _mediator.Send(new GenerateImageCommand(_reservations));
         image.Save(stream, new PngEncoder());
