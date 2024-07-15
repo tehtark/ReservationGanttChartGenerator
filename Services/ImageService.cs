@@ -233,7 +233,13 @@ internal class ImageService : IImageService
             var r = records[i];
             if (r.Name == null) throw new NullReferenceException();
 
-            string information = $"Name: {AbbreviateName(r.Name, 30)} | Phone Number: {r.PhoneNumber} | Email: {r.Email} | Allergies: {r.Allergies}";
+            string information = $"Name: {AbbreviateName(r.Name, 30)} | Phone Number: {r.PhoneNumber}";
+            if (string.IsNullOrEmpty(r.Allergies)) {
+                information += $" | Allergies: No";
+            }
+            else {
+                information += $" | Allergies: {r.Allergies}";
+            }
 
             int x = Margin;
             int y = lastTableY + Margin + (i + 1) * RowHeight;
