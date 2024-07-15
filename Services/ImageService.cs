@@ -78,7 +78,7 @@ internal class ImageService : IImageService
     /// <summary>
     /// The font used for the information text.
     /// </summary>
-    private static Font InformationFont = new Font("Verdana", 14, FontStyle.Regular);
+    private static Font InformationFont = new Font("Verdana", 12, FontStyle.Regular);
 
     /// <summary>
     /// The font used for the chart labels.
@@ -242,7 +242,7 @@ internal class ImageService : IImageService
             }
 
             int x = Margin;
-            int y = lastTableY + Margin + (i + 1) * RowHeight;
+            float y = lastTableY + Margin + (i + 1) * RowHeight / 1.5f;
 
             graphics.DrawString(information, InformationFont, Brushes.Black, x, y);
         }
