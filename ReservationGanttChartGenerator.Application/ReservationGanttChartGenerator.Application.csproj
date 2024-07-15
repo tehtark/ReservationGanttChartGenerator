@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="MediatR" Version="12.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.6" />
     <PackageReference Include="Serilog" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
@@ -17,11 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ReservationGanttChartGenerator.Domain\ReservationGanttChartGenerator.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Abstractions\Interfaces\" />
-    <Folder Include="Common\Image\Queries\" />
   </ItemGroup>
 
 </Project>

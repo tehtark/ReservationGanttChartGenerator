@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using ReservationGanttChartGenerator.Application.Abstractions;
+using ReservationGanttChartGenerator.Application.Abstractions.Interfaces;
 
 namespace ReservationGanttChartGenerator.Application;
 
@@ -10,6 +12,7 @@ public static class ApplicationDependencyInjection
             config.RegisterServicesFromAssembly(typeof(ApplicationDependencyInjection).Assembly);
         });
 
-        services.AddTransient<Abstractions.ImageService>();
+        services.AddTransient<IFileService, FileService>();
+        services.AddTransient<IImageGenerationService, ImageGenerationService>();
     }
 }
