@@ -9,5 +9,7 @@ public static class ApplicationDependencyInjection
         services.AddMediatR(config => {
             config.RegisterServicesFromAssembly(typeof(ApplicationDependencyInjection).Assembly);
         });
+
+        services.AddTransient<Abstractions.ImageService>();
     }
 }

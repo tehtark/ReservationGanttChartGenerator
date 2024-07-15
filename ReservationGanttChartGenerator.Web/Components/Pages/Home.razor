@@ -6,16 +6,17 @@
 
 <MudGrid>
     <MudItem xs="12">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-            <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
-                <ActivatorContent>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">Upload Files</MudButton>
-                </ActivatorContent>
-            </MudFileUpload>
-        </MudPaper>        
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-            <MudImage></MudImage>
-        </MudPaper>
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                    <ActivatorContent>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">Upload Files</MudButton>
+                    </ActivatorContent>
+                </MudFileUpload>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary">Generate</MudButton>
+            </MudPaper>        
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                <MudImage Src="@imagePath"></MudImage>
+            </MudPaper>
     </MudItem>
 </MudGrid>
 
@@ -33,9 +34,15 @@
 
 @code{
     IList<IBrowserFile> _files = new List<IBrowserFile>();
+    string? imagePath = string.Empty;
     private void UploadFiles(IBrowserFile file)
     {
         _files.Add(file);
+
+
         //TODO upload the files to the server
     }
+    protected override async Task OnInitializedAsync(){
+    }
+
 }
