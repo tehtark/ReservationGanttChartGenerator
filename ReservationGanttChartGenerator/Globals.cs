@@ -1,4 +1,4 @@
-﻿namespace ReservationGanttChartGenerator.Web;
+﻿namespace ReservationGanttChartGenerator;
 
 public class Globals
 {

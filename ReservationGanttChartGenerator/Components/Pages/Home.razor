@@ -3,6 +3,7 @@
 @using ReservationGanttChartGenerator.Application.Common.File.Queries
 @using ReservationGanttChartGenerator.Application.Common.Generation.Commands
 @using ReservationGanttChartGenerator.Domain.Models
+@using ReservationGanttChartGenerator
 @using SixLabors.ImageSharp.Formats.Png
 @attribute [StreamRendering(true)]
 @rendermode InteractiveServer
@@ -40,9 +41,9 @@
 
         </MudItem>
     }
-</MudGrid>
+    </MudGrid>
 
-@* @if (_files != null) {
+    @* @if (_files != null) {
     <MudText Typo="@Typo.h6">@_files.Count() File@(_files.Count() == 1 ? "" : "s"):</MudText>
     <MudList T="string">
         @foreach (var file in _files) {
@@ -53,7 +54,7 @@
     </MudList>
 } *@
 
-@code {
+    @code {
     bool loaded = false;
     IList<IBrowserFile> _files = new List<IBrowserFile>();
     Stream? _stream;

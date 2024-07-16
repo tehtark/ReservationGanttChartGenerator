@@ -1,5 +1,5 @@
 using MudBlazor.Services;
-using ReservationGanttChartGenerator.Web.Components;
+using ReservationGanttChartGenerator.Components;
 using ReservationGanttChartGenerator.Application;
 using Serilog;
 using Serilog.Events;

@@ -3,14 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReservationGanttChartGenerator.Web", "ReservationGanttChartGenerator.Web\ReservationGanttChartGenerator.Web.csproj", "{5A9B1F75-4F9E-4D73-B2DD-E7850AB8DF95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReservationGanttChartGenerator", "ReservationGanttChartGenerator\ReservationGanttChartGenerator.csproj", "{C9AAFE66-D3C4-4DF0-A7A8-73B713BACD33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReservationGanttChartGenerator.Application", "ReservationGanttChartGenerator.Application\ReservationGanttChartGenerator.Application.csproj", "{4A783774-E242-4195-B0C5-27D988596118}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C6A84E83-9267-4F47-9158-6053E20D877B} = {C6A84E83-9267-4F47-9158-6053E20D877B}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReservationGanttChartGenerator.Application", "ReservationGanttChartGenerator.Application\ReservationGanttChartGenerator.Application.csproj", "{658BE11F-4B36-4731-86E8-A63BCD1127B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReservationGanttChartGenerator.Domain", "ReservationGanttChartGenerator.Domain\ReservationGanttChartGenerator.Domain.csproj", "{C6A84E83-9267-4F47-9158-6053E20D877B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReservationGanttChartGenerator.Domain", "ReservationGanttChartGenerator.Domain\ReservationGanttChartGenerator.Domain.csproj", "{607A39B0-E1DC-49F6-9159-BCDB8F173441}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,23 +15,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5A9B1F75-4F9E-4D73-B2DD-E7850AB8DF95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A9B1F75-4F9E-4D73-B2DD-E7850AB8DF95}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A9B1F75-4F9E-4D73-B2DD-E7850AB8DF95}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A9B1F75-4F9E-4D73-B2DD-E7850AB8DF95}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A783774-E242-4195-B0C5-27D988596118}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A783774-E242-4195-B0C5-27D988596118}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A783774-E242-4195-B0C5-27D988596118}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A783774-E242-4195-B0C5-27D988596118}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C6A84E83-9267-4F47-9158-6053E20D877B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6A84E83-9267-4F47-9158-6053E20D877B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C6A84E83-9267-4F47-9158-6053E20D877B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C6A84E83-9267-4F47-9158-6053E20D877B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9AAFE66-D3C4-4DF0-A7A8-73B713BACD33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9AAFE66-D3C4-4DF0-A7A8-73B713BACD33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9AAFE66-D3C4-4DF0-A7A8-73B713BACD33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9AAFE66-D3C4-4DF0-A7A8-73B713BACD33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{658BE11F-4B36-4731-86E8-A63BCD1127B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{658BE11F-4B36-4731-86E8-A63BCD1127B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{658BE11F-4B36-4731-86E8-A63BCD1127B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{658BE11F-4B36-4731-86E8-A63BCD1127B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{607A39B0-E1DC-49F6-9159-BCDB8F173441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{607A39B0-E1DC-49F6-9159-BCDB8F173441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{607A39B0-E1DC-49F6-9159-BCDB8F173441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{607A39B0-E1DC-49F6-9159-BCDB8F173441}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7A709FBB-E4F2-4E47-A2F4-ADCBB21AD573}
+		SolutionGuid = {CEF0DE90-0057-4142-911C-D6D2BAF2EE6D}
 	EndGlobalSection
 EndGlobal
