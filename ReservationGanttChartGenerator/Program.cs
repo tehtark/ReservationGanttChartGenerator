@@ -10,7 +10,7 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.WebHost.UseUrls("http://192.168.0.35:5222");
+        //builder.WebHost.UseUrls("http://192.168.0.35:5222");
 
         // Initialise logger.
         InitialiseLogger(builder.Host);
