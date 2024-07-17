@@ -114,7 +114,7 @@ internal class ImageGenerationService : IImageGenerationService
                     string abbreviatedName = AbbreviateName(r.Name);
                     textSize = TextMeasurer.MeasureSize(abbreviatedName, new TextOptions(_font));
                     textLocation = new PointF(textX - textSize.Width / 2, textY - textSize.Height / 2 - 3);
-                    image.Mutate(img => img.DrawText(abbreviatedName, _font, Color.Black, textLocation));
+                    image.Mutate(img => img.DrawText(abbreviatedName + $" T: {r.Table}" + $" C:{r.Covers}", _font, Color.Black, textLocation));
                 }
             }
         }
