@@ -99,38 +99,43 @@ internal class ImageGenerationService : IImageGenerationService
             var textLocation = new PointF(textX - textSize.Width / 2, textY - textSize.Height / 2);
             image.Mutate(img => img.DrawText(tableNumber, _font, Color.Black, textLocation));
             image.Mutate(img => img.DrawLine(_drawingOptions, _pen, new Point(_margin, y + _margin), new Point(_width - _margin, y + _margin)));
-            foreach (Reservation r in records) {
-                if (r.Table == null) throw new NullReferenceException();
-                string[] tables = r.Table.Split('+');
-                if (tables.Contains((t + 1).ToString())) {
-                    if (r.Time == null) throw new NullReferenceException();
 
-                    DateTime startTime = DateTime.Parse(r.Time);
-                    DateTime endTime = startTime.AddHours(_reservationDuration);
+            var tableReservations = records.Where(r => r.Table != null && r.Table.Split('+').Contains((t + 1).ToString())).ToList();
+            foreach (Reservation r in tableReservations) {
+                if (r.Time == null) throw new NullReferenceException();
 
-                    int barStartX = _margin + (int)((startTime.Hour - firstTable) * timeUnitWidth + startTime.Minute / 60.0 * timeUnitWidth);
-                    int barEndX = _margin + (int)((endTime.Hour - firstTable) * timeUnitWidth + endTime.Minute / 60.0 * timeUnitWidth);
-                    int barWidth = Math.Max(barEndX - barStartX, 1);
+                DateTime startTime = DateTime.Parse(r.Time);
+                DateTime endTime = startTime.AddHours(_reservationDuration);
 
-                    if (barEndX > _width - _margin) {
-                        barWidth = _width - _margin - barStartX;
-                    }
+                int barStartX = _margin + (int)((startTime.Hour - firstTable) * timeUnitWidth + startTime.Minute / 60.0 * timeUnitWidth);
+                int barEndX = _margin + (int)((endTime.Hour - firstTable) * timeUnitWidth + endTime.Minute / 60.0 * timeUnitWidth);
+                int barWidth = Math.Max(barEndX - barStartX, 1);
 
-                    var rect = new Rectangle(barStartX, y + (_rowHeight - _barThickness) / 2, barWidth, _barThickness);
-                    image.Mutate(img => img.Fill(Color.LightBlue, rect));
-
-                    // Centering Text Logic
-                    textX = rect.Left + rect.Width / 2;         // Center text horizontally within the rectangle
-                    textY = rect.Top + rect.Height / 2;         // Center text vertically within the rectangle
-
-                    if (r.Name == null) throw new NullReferenceException();
-
-                    string textToDisplay = $"{AbbreviateName(r.Name)} T: {r.Table} C:{r.Covers}";
-                    textSize = TextMeasurer.MeasureSize(textToDisplay, new TextOptions(_font));
-                    textLocation = new PointF(textX - textSize.Width / 2, textY - textSize.Height / 2); // Adjust text position
-
-                    image.Mutate(img => img.DrawText(textToDisplay, _font, Color.Black, textLocation));
+                if (barEndX > _width - _margin) {
+                    barWidth = _width - _margin - barStartX;
                 }
+
+                bool isOverlapping = tableReservations.Any(other =>
+                    other != r &&
+                    DateTime.Parse(other.Time).AddHours(_reservationDuration) == DateTime.Parse(r.Time)
+                );
+
+                var fillColor = isOverlapping ? Color.LightSalmon : Color.LightBlue;
+
+                var rect = new Rectangle(barStartX, y + (_rowHeight - _barThickness) / 2, barWidth, _barThickness);
+                image.Mutate(img => img.Fill(fillColor, rect));
+
+                // Centering Text Logic
+                textX = rect.Left + rect.Width / 2;         // Center text horizontally within the rectangle
+                textY = rect.Top + rect.Height / 2;         // Center text vertically within the rectangle
+
+                if (r.Name == null) throw new NullReferenceException();
+
+                string textToDisplay = $"{AbbreviateName(r.Name)} T: {r.Table} C:{r.Covers}";
+                textSize = TextMeasurer.MeasureSize(textToDisplay, new TextOptions(_font));
+                textLocation = new PointF(textX - textSize.Width / 2, textY - textSize.Height / 2); // Adjust text position
+
+                image.Mutate(img => img.DrawText(textToDisplay, _font, Color.Black, textLocation));
             }
         }
     }
