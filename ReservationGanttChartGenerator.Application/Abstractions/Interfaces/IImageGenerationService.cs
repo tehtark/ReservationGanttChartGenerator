@@ -5,5 +5,7 @@ namespace ReservationGanttChartGenerator.Application.Abstractions.Interfaces;
 
 internal interface IImageGenerationService
 {
-    public Image GenerateImage(List<Reservation> reservations);
+    string ConvertImageToString(Image image);
+
+    Image GenerateImage(List<Reservation> reservations);
 }

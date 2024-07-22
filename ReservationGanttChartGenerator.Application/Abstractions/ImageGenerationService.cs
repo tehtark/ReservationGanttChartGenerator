@@ -3,6 +3,7 @@ using ReservationGanttChartGenerator.Domain.Models;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -34,7 +35,6 @@ internal class ImageGenerationService : IImageGenerationService
         Image image = new Image<Rgba32>(_width, _height);
         image.Mutate(x => x.BackgroundColor(Color.White));
 
-
         var firstTable = DateTime.Parse(reservations.First().Time).Hour - 1;
         var lastTable = DateTime.Parse(reservations.Last().Time).Hour + 3;
 
@@ -44,14 +44,26 @@ internal class ImageGenerationService : IImageGenerationService
         DrawAxis(image);
         DrawTimeScale(image, firstTable, lastTable, timeUnitWidth);
         DrawReservations(image, reservations, firstTable, lastTable, timeUnitWidth);
+        DrawInformation(image, reservations);
 
         return image;
+    }
+
+    public string ConvertImageToString(Image image)
+    {
+        using var stream = new MemoryStream();
+        image.Save(stream, new PngEncoder());
+        byte[] imageBytes = stream.ToArray();
+
+        string base64Image = Convert.ToBase64String(imageBytes);
+        var dataUri = $"data:image/png;base64,{base64Image}";
+        return dataUri;
     }
 
     private void DrawAxis(Image image)
     {
         image.Mutate(img => img.DrawLine(_drawingOptions, _pen, new Point(_margin, _margin), new Point(_width - _margin, _margin)));
-        image.Mutate(img => img.DrawLine(_drawingOptions, _pen, new Point(_margin, _margin), new Point(_margin, _height - _margin)));
+        image.Mutate(img => img.DrawLine(_drawingOptions, _pen, new Point(_margin, _margin), new Point(_margin, _margin + (_totalTables) * _rowHeight))); // Updated line
     }
 
     private void DrawTimeScale(Image image, int firstTable, int lastTable, int timeUnitWidth)
@@ -107,16 +119,42 @@ internal class ImageGenerationService : IImageGenerationService
                     var rect = new Rectangle(barStartX, y + (_rowHeight - _barThickness) / 2, barWidth, _barThickness);
                     image.Mutate(img => img.Fill(Color.LightBlue, rect));
 
-                    textX = (barStartX + barEndX) / 2;
-                    textY = y + _rowHeight / 2 + 2;
+                    // Centering Text Logic
+                    textX = rect.Left + rect.Width / 2;         // Center text horizontally within the rectangle
+                    textY = rect.Top + rect.Height / 2;         // Center text vertically within the rectangle
+
                     if (r.Name == null) throw new NullReferenceException();
 
-                    string abbreviatedName = AbbreviateName(r.Name);
-                    textSize = TextMeasurer.MeasureSize(abbreviatedName, new TextOptions(_font));
-                    textLocation = new PointF(textX - textSize.Width / 2, textY - textSize.Height / 2 - 3);
-                    image.Mutate(img => img.DrawText(abbreviatedName + $" T: {r.Table}" + $" C:{r.Covers}", _font, Color.Black, textLocation));
+                    string textToDisplay = $"{AbbreviateName(r.Name)} T: {r.Table} C:{r.Covers}";
+                    textSize = TextMeasurer.MeasureSize(textToDisplay, new TextOptions(_font));
+                    textLocation = new PointF(textX - textSize.Width / 2, textY - textSize.Height / 2); // Adjust text position
+
+                    image.Mutate(img => img.DrawText(textToDisplay, _font, Color.Black, textLocation));
                 }
             }
+        }
+    }
+
+    private void DrawInformation(Image image, List<Reservation> records)
+    {
+        int lastTableY = _margin + (_totalTables - 1) * _rowHeight;
+
+        for (var i = 0; i < records.Count; i++) {
+            var r = records[i];
+            if (r.Name == null) throw new NullReferenceException();
+
+            string information = $"Name: {AbbreviateName(r.Name, 30)} | Phone Number: {r.PhoneNumber}";
+            if (string.IsNullOrEmpty(r.Allergies)) {
+                information += $" | Allergies: No";
+            }
+            else {
+                information += $" | Allergies: {r.Allergies}";
+            }
+
+            int x = _margin;
+            float y = lastTableY + _margin + (i + 1) * _rowHeight / 1.5f;
+
+            image.Mutate(img => img.DrawText(information, _font, Color.Black, new PointF(x, y)));
         }
     }
 

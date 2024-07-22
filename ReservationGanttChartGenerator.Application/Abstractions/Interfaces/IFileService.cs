@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using ReservationGanttChartGenerator.Domain.Models;
+﻿using ReservationGanttChartGenerator.Domain.Models;
 
 namespace ReservationGanttChartGenerator.Application.Abstractions.Interfaces;
 
