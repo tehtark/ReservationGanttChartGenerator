@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReservationGanttChartGenera
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReservationGanttChartGenerator.Domain", "ReservationGanttChartGenerator.Domain\ReservationGanttChartGenerator.Domain.csproj", "{607A39B0-E1DC-49F6-9159-BCDB8F173441}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReservationGanttChartGenerator.Presentation", "ReservationGanttChartGenerator.Presentation\ReservationGanttChartGenerator.Presentation.csproj", "{6B181E07-C49F-4F02-8A57-1AFB8860FB68}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{607A39B0-E1DC-49F6-9159-BCDB8F173441}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{607A39B0-E1DC-49F6-9159-BCDB8F173441}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{607A39B0-E1DC-49F6-9159-BCDB8F173441}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6B181E07-C49F-4F02-8A57-1AFB8860FB68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6B181E07-C49F-4F02-8A57-1AFB8860FB68}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6B181E07-C49F-4F02-8A57-1AFB8860FB68}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6B181E07-C49F-4F02-8A57-1AFB8860FB68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
