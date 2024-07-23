@@ -4,58 +4,47 @@
 @using ReservationGanttChartGenerator.Application.Common.Generation.Commands
 @using ReservationGanttChartGenerator.Domain.Models
 @using ReservationGanttChartGenerator
-@using SixLabors.ImageSharp.Formats.Png
-@attribute [StreamRendering(true)]
+
+@attribute [StreamRendering]
 @rendermode InteractiveServer
 @inject ISender _mediator
+@inject NavigationManager _navigationManager
 
 <PageTitle>Home</PageTitle>
 
 <MudGrid>
     <MudItem xs="12">
         <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-            @if (!loaded) {
-                <p><em>Loading...</em></p>
+            @if (_loaded && _files.Count == 0) {
+                <MudFileUpload T="IBrowserFile" FilesChanged="UploadFile">
+                    <ActivatorContent>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">Upload Files</MudButton>
+                    </ActivatorContent>
+                </MudFileUpload>
+            }
+            else if (_loaded && !_generated) {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Generate">Generate</MudButton>
+            }
+            else if (_loaded && _generated) {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Clear">Clear</MudButton>
             }
             else {
-
-                @if (_files.Count == 0) {
-                    <MudFileUpload T="IBrowserFile" FilesChanged="UploadFile">
-                        <ActivatorContent>
-                            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">Upload Files</MudButton>
-                        </ActivatorContent>
-                    </MudFileUpload>
-                }
-                else {
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Generate">Generate</MudButton>
-                }
+                <MudProgressCircular Color="Color.Success" Indeterminate="true" />
             }
         </MudPaper>
     </MudItem>
     @if (!string.IsNullOrEmpty(dataUri)) {
         <MudItem xs="12">
 
-            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                <MudImage Src="@dataUri"></MudImage>
-            </MudPaper>
+            <MudImage Src="@dataUri" Style="width: 100%; height: auto;"></MudImage>
 
         </MudItem>
     }
-    </MudGrid>
+</MudGrid>
 
-    @* @if (_files != null) {
-    <MudText Typo="@Typo.h6">@_files.Count() File@(_files.Count() == 1 ? "" : "s"):</MudText>
-    <MudList T="string">
-        @foreach (var file in _files) {
-            <MudListItem Icon="@Icons.Material.Filled.AttachFile" @key="@file">
-                @file.Name <code>@file.Size bytes</code>
-            </MudListItem>
-        }
-    </MudList>
-} *@
-
-    @code {
-    bool loaded = false;
+@code {
+    bool _loaded = false;
+    bool _generated = false;
     IList<IBrowserFile> _files = new List<IBrowserFile>();
     Stream? _stream;
     string dataUri = string.Empty;
@@ -66,26 +55,39 @@
 
         await Task.Delay(Globals.DefaultDelay);
 
-        loaded = true;
+        _loaded = true;
+
+        StateHasChanged();
     }
 
     private async Task UploadFile(IBrowserFile file)
     {
         _files.Add(file);
         _stream = file.OpenReadStream();
+        StateHasChanged();
     }
     private async Task Generate()
     {
+        _generated = true;
+
+        if (_stream == null) {
+            return;
+        }
+
         var _reservations = await _mediator.Send(new ReadFileQuery(_stream));
-        using var stream = new MemoryStream();
+
+        if (_reservations == null) {
+            return;
+        }
+
         var image = await _mediator.Send(new GenerateImageCommand(_reservations));
-        image.Save(stream, new PngEncoder());
-        byte[] imageBytes = stream.ToArray();
-
-        string base64Image = Convert.ToBase64String(imageBytes);
-        dataUri = $"data:image/png;base64,{base64Image}";
+        dataUri = await _mediator.Send(new ConvertImageToStringCommand(image));
         StateHasChanged();
+    }
 
+    private async Task Clear()
+    {
+        _navigationManager.NavigateTo(_navigationManager.Uri, true);
     }
 
 }
