@@ -148,7 +148,10 @@ internal class ImageGenerationService : IImageGenerationService
             var r = records[i];
             if (r.Name == null) throw new NullReferenceException();
 
-            string information = $"Name: {AbbreviateName(r.Name, 30)} | Phone Number: {r.PhoneNumber}";
+            string information = $"Name: {AbbreviateName(r.Name, 30)} | Number: {r.PhoneNumber}";
+            if (!string.IsNullOrEmpty(r.TeamNote)) { 
+                information += $" | Team Note: {r.TeamNote}";
+            }
             if (string.IsNullOrEmpty(r.Allergies)) {
                 information += $" | Allergies: No";
             }
